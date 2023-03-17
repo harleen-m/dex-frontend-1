@@ -9,6 +9,7 @@ import { useBribeClaim } from '../lib/useClaimBribes';
 import { StatGridItemRight } from './ClaimTableUtils';
 import { useClaimsData } from '../lib/useClaimsData';
 import { parseUnits } from 'ethers/lib/utils';
+import { useGetPoolsQuery } from '~/apollo/generated/graphql-codegen-generated';
 
 type Props = {
   bribeRewards: any[];
@@ -19,6 +20,9 @@ export function BribeClaim({ bribeRewards }: Props) {
   const { userAddress } = useUserAccount();
   const { refetchBribeRewards } = useClaimsData();
   const { claimBribes, txState } = useBribeClaim();
+
+  const { data } = useGetPoolsQuery({});
+  const pools = data?.poolGetPools;
 
   useEffect(() => {
     if (txState.isFailed) {
@@ -85,7 +89,7 @@ export function BribeClaim({ bribeRewards }: Props) {
             <Text fontWeight="bold">Reward</Text>
           </GridItem>
           <GridItem>
-            <Text fontWeight="bold">Gauge</Text>
+            <Text fontWeight="bold">Pool Name</Text>
           </GridItem>
           <GridItem>
             <Text fontWeight="bold" textAlign="left">
@@ -137,7 +141,7 @@ export function BribeClaim({ bribeRewards }: Props) {
                     fontSize={{ base: '1rem', lg: 'md' }}
                     fontWeight={{ base: 'bold', lg: 'normal' }}
                   >
-                    {bribe.gaugeRecord.symbol}
+                    {pools?.find(e => e.staking?.id == bribe.gauge)?.name || bribe.gaugeRecord.symbol}
                   </Text>
                 </GridItem>
                 <GridItem area="shares" textAlign="left">
